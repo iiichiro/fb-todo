@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, ToastController, LoadingController } from 'ionic-angular';
 import { AngularFireAuth } from 'angularfire2/auth';
 
 /**
@@ -20,13 +20,21 @@ interface LoginData {
   templateUrl: 'login.html',
 })
 export class LoginPage {
-  readonly EMAIL_REGEX = "^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$";
   data: LoginData = {} as LoginData;
 
   constructor(public navCtrl: NavController, 
               public alertCtrl: AlertController,
               public toastCtrl: ToastController,
+              public loadingCtrl: LoadingController,
               public afAuth: AngularFireAuth) {
+  }
+
+  ionViewWillEnter() {
+    this.afAuth.auth.onAuthStateChanged(user => {
+      if (user) {
+        this.navCtrl.setRoot('TaskListPage');
+      }
+    })
   }
 
   signUp() {
@@ -51,6 +59,10 @@ export class LoginPage {
         {
           text: 'Sign Up',
           handler: data => {
+            const loading = this.loadingCtrl.create({
+              content: 'SignUp...'
+            });
+            loading.present();
             this.afAuth.auth.createUserWithEmailAndPassword(data.email, data.password).then(res => {
               const toast = this.toastCtrl.create({
                 message: 'Sign Up is complited!',
@@ -58,6 +70,7 @@ export class LoginPage {
                 position: 'top'
               });
               toast.present();
+              loading.dismiss();
               this.navCtrl.setRoot('TaskListPage');
             }).catch(err => {
               const toast = this.toastCtrl.create({
@@ -66,6 +79,7 @@ export class LoginPage {
                 showCloseButton: true,
                 closeButtonText: 'OK'
               });
+              loading.dismiss();
               toast.present();
             })
           }
@@ -76,6 +90,10 @@ export class LoginPage {
   }
 
   login() {
+    const loading = this.loadingCtrl.create({
+      content: 'SignUp...'
+    });
+    loading.present();
     this.afAuth.auth.signInWithEmailAndPassword(
       this.data.email, this.data.password
     ).then(res => {
@@ -85,6 +103,7 @@ export class LoginPage {
         position: 'top'
       });
       toast.present();
+      loading.dismiss();
       this.navCtrl.setRoot('TaskListPage');
     }).catch(err => {
       const toast = this.toastCtrl.create({
@@ -94,11 +113,8 @@ export class LoginPage {
         closeButtonText: 'OK'
       });
       toast.present();
+      loading.dismiss();
     })
-  }
-
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad LoginPage');
   }
 
 }

@@ -8,6 +8,9 @@
 <ion-header>
 
   <ion-navbar>
+    <ion-buttons start>
+      <button ion-button outline (click)="logout()">LOGOUT</button>
+    </ion-buttons>
     <ion-title>タスク管理</ion-title>
   </ion-navbar>
 
@@ -15,10 +18,21 @@
 
 
 <ion-content padding>
+  <ion-fab top right>
+    <button ion-fab mini (click)="onAdd()">
+      <ion-icon name="add"></ion-icon>
+    </button>
+  </ion-fab>
   <ion-list>
     <ion-list-header>タスク一覧</ion-list-header>
-    <ion-item *ngFor="let task of taskList; let idx=index">
-      <span>{{task.name}}</span>
-    </ion-item>
+    <ion-item-sliding *ngFor="let task of taskList; let idx=index">
+      <ion-item>
+        {{task.name}}
+      </ion-item>
+      <ion-item-options side="right">
+        <button ion-button color="secondary" (click)="onEdit(task)">EDIT</button>
+        <button ion-button color="danger" (click)="onDelete(task)">DEL</button>
+      </ion-item-options>
+    </ion-item-sliding>
   </ion-list>
 </ion-content>
